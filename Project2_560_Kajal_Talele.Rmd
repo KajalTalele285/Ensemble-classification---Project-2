@@ -1,0 +1,168 @@
+---
+title: "Project2_Kajal_Talele"
+author: "Kajal Talele"
+date: "2023-03-18"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+PROJECT 2
+
+
+
+loading libraries
+
+```{r}
+library(mlbench)
+library(caret)
+```
+
+
+
+load data
+
+```{r}
+data(BreastCancer)
+ls(BreastCancer)
+summary(BreastCancer)
+
+BreastCancer.df <- na.omit(BreastCancer) 
+
+BreastCancer.df$Id <- NULL 
+head(BreastCancer.df)
+str(BreastCancer.df)
+```
+
+
+
+
+
+df2 <- data.frame(sapply(BreastCancer.df[1:9], function(x) as.numeric(as.character(x))))
+z <- scale(df2[,1:9],center=TRUE,scale=TRUE)
+head(z)
+
+```{r}
+set.seed(2)
+index <- createDataPartition(BreastCancer.df$Class, p =0.7, list = FALSE)
+train.df <- BreastCancer.df[index,]
+valid.df <- BreastCancer.df[-index,]
+```
+
+
+```{r}
+#SVM
+library(e1071)
+mysvm <- svm(Class ~ ., train.df)
+mysvm.pred <- predict(mysvm, valid.df)
+table(mysvm.pred,valid.df$Class)
+```
+
+
+
+Naive Bayes
+```{r}
+
+library(klaR)
+mynb <- NaiveBayes(Class ~ ., train.df)
+mynb.pred <- predict(mynb,valid.df)
+table(mynb.pred$class,valid.df$Class)
+
+```
+
+
+
+
+Neural Network
+```{r}
+
+library(nnet)
+mynnet <- nnet(Class ~ ., train.df, size=1)
+mynnet.pred <- predict(mynnet,valid.df,type="class")
+table(mynnet.pred,valid.df$Class)
+
+```
+
+
+
+
+Decision Trees
+```{r}
+
+library(rpart)
+mytree <- rpart(Class ~ ., train.df)
+plot(mytree); text(mytree) 
+summary(mytree)
+mytree.pred <- predict(mytree,valid.df,type="class")
+table(mytree.pred,valid.df$Class)
+
+```
+
+
+
+
+Regularised Discriminant Analysis
+```{r}
+
+myrda <- rda(Class ~ ., train.df)
+myrda.pred <- predict(myrda, valid.df)
+table(myrda.pred$class,valid.df$Class)
+
+```
+
+
+
+
+Random Forests
+```{r}
+
+library(randomForest)
+myrf <- randomForest(Class ~ ., train.df)
+myrf.pred <- predict(myrf, valid.df)
+head(myrf.pred)
+table(myrf.pred, valid.df$Class)
+
+```
+
+
+
+
+Combining the predictions
+```{r}
+
+combine.classes<-data.frame(mysvm.pred, mynb.pred$class, mynnet.pred, myrda.pred$class, myrf.pred)
+
+combine.classes[,1]<-ifelse(combine.classes[,1]=="benign", 0, 1)
+combine.classes[,2]<-ifelse(combine.classes[,2]=="benign", 0, 1)
+combine.classes[,3]<-ifelse(combine.classes[,3]=="benign", 0, 1)
+combine.classes[,4]<-ifelse(combine.classes[,4]=="benign", 0, 1)
+combine.classes[,5]<-ifelse(combine.classes[,5]=="benign", 0, 1)
+head(combine.classes)
+
+```
+
+
+
+
+
+computing majority by adding all the counts
+```{r}
+combine.classes$vote=rowSums(combine.classes[1:5])
+head(combine.classes)
+
+```
+
+
+
+
+Calculate accuracy and confusion matrix
+```{r}
+
+combine.classes$precitionClass <- ifelse(combine.classes$vote>=3, "malignant", "benign")
+confusionMatrix(as.factor(combine.classes$precitionClass), as.factor(valid.df$Class))
+
+```
+
