@@ -3,9 +3,9 @@ Ensemble classification combines multiple models to improve classification accur
 
 The following are the steps for the Ensemble Classification project:
 
-Import and parse the breast cancer dataset.
-Create at least four different classifiers and determine the necessary features for training and test data.
-Combine the classifiers in an ensemble.
-Evaluate the performance of the ensemble using performance measures such as confusion matrix, accuracy, recall, etc.
-Clean up and document the code.
-Generate knitted document(s) documenting the project and its results.
+- Import and parse the breast cancer dataset.
+- Create at least four different classifiers and determine the necessary features for training and test data.
+- Combine the classifiers in an ensemble.
+- Evaluate the performance of the ensemble using performance measures such as confusion matrix, accuracy, recall, etc.
+- Clean up and document the code.
+- Generate knitted document(s) documenting the project and its results.
